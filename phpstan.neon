@@ -1,0 +1,6 @@
+parameters:
+	universalObjectCratesClasses:
+		- DateInterval
+		- DateTime
+		- DateTimeImmutable
+		- DOMNode
