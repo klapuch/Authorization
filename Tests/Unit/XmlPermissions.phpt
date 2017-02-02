@@ -18,111 +18,148 @@ final class XmlPermissions extends Tester\TestCase {
 	 */
 	public function testThrowingOnNoPermissions() {
 		$xml = Tester\FileMock::create('', 'xml');
-		(new Authorization\XmlPermissions($xml))->resources();
+		(new Authorization\XmlPermissions($xml, 'guest'))->resources();
 	}
 
 	/**
 	 * @throws \RuntimeException XML can not be loaded
 	 */
 	public function testThrowingOnUnknownFile() {
-		(new Authorization\XmlPermissions(__FILE__))->resources();
+		(new Authorization\XmlPermissions(__FILE__, 'guest'))->resources();
 	}
 
 	/**
 	 * @throws \InvalidArgumentException No available permissions
 	 */
-	public function testThrowingOnNoDesiredRootElement() {
+	public function testThrowingOnMissingRootElement() {
 		$xml = Tester\FileMock::create(
 			'<foo><permission/></foo>',
 			'xml'
 		);
-		(new Authorization\XmlPermissions($xml))->resources();
+		(new Authorization\XmlPermissions($xml, 'guest'))->resources();
 	}
 
 	/**
 	 * @throws \InvalidArgumentException No available permissions
 	 */
-	public function testThrowingOnNoDesiredChildrenElements() {
+	public function testThrowingOnMissingChildrenElements() {
 		$xml = Tester\FileMock::create(
 			'<permissions><foo/></permissions>',
 			'xml'
 		);
-		(new Authorization\XmlPermissions($xml))->resources();
+		(new Authorization\XmlPermissions($xml, 'guest'))->resources();
 	}
 
 	/**
 	 * @throws \InvalidArgumentException No available permissions
 	 */
-	public function testThrowingOnNoDesiredAttributes() {
+	public function testThrowingOnMissingAttributes() {
 		$xml = Tester\FileMock::create(
 			'<permissions><permission/></permissions>',
 			'xml'
 		);
-		(new Authorization\XmlPermissions($xml))->resources();
+		(new Authorization\XmlPermissions($xml, 'guest'))->resources();
 	}
 
-	/**
-	 * @throws \InvalidArgumentException No available permissions
-	 */
-	public function testThrowingOnSomeIncludedMandatoryAttributes() {
-		$xml = Tester\FileMock::create(
+	public function testThrowingOnMissingResourceAttribute() {
+		$singleFault = Tester\FileMock::create(
 			'<permissions>
-				<permission href="foo/bar"/>
-				<permission/>
-				<permission href="bar/foo"/>
+				<permission role="guest"/>
 			</permissions>',
 			'xml'
 		);
-		(new Authorization\XmlPermissions($xml))->resources();
+		$hiddenSingleFault = Tester\FileMock::create(
+			'<permissions>
+				<permission role="guest"/>
+				<permission href="first" role="guest"/>
+			</permissions>',
+			'xml'
+		);
+		Assert::exception(function() use($singleFault) {
+			(new Authorization\XmlPermissions(
+				$singleFault, 'guest'
+			))->resources();
+		}, \InvalidArgumentException::class, 'No available permissions');
+		Assert::exception(function() use($hiddenSingleFault) {
+			(new Authorization\XmlPermissions(
+				$hiddenSingleFault, 'guest'
+			))->resources();
+		}, \InvalidArgumentException::class, 'No available permissions');
 	}
 
-	public function testAllExtractedResources() {
-		$xml = Tester\FileMock::create(
+	public function testThrowingOnMissingRoleAttribute() {
+		$singleFault = Tester\FileMock::create(
 			'<permissions>
 				<permission href="first"/>
-				<permission href="second"/>
-				<permission href="third"/>
-				<permission href="0"/>
+			</permissions>',
+			'xml'
+		);
+		$hiddenSingleFault = Tester\FileMock::create(
+			'<permissions>
+				<permission href="first"/>
+				<permission href="first" role="guest"/>
+			</permissions>',
+			'xml'
+		);
+		Assert::exception(function() use($singleFault) {
+			(new Authorization\XmlPermissions(
+				$singleFault, 'guest'
+			))->resources();
+		}, \InvalidArgumentException::class, 'No available permissions');
+		Assert::exception(function() use($hiddenSingleFault) {
+			(new Authorization\XmlPermissions(
+				$hiddenSingleFault, 'guest'
+			))->resources();
+		}, \InvalidArgumentException::class, 'No available permissions');
+	}
+
+	public function testExtractedResourcesForParticularRole() {
+		$xml = Tester\FileMock::create(
+			'<permissions>
+			<permission href="first" role="member"/>
+			<permission href="second" role="admin"/>
+			<permission href="third" role="guest"/>
+			<permission href="0" role="guest"/>
 			</permissions>',
 			'xml'
 		);
 		Assert::same(
-			['first', 'second', 'third', '0'],
-			(new Authorization\XmlPermissions($xml))->resources()
+			['third', '0'],
+			(new Authorization\XmlPermissions($xml, 'guest'))->resources()
 		);
 	}
 
-	public function testPassingWithSomeExtraAttributes() {
+	public function testPassingWithExtraAttributes() {
 		$xml = Tester\FileMock::create(
 			'<permissions>
-				<permission href="first"/>
-				<permission href="second" role="guest"/>
-				<permission href="third" role="master"/>
+				<permission href="first" role="guest"/>
+				<permission href="second" role="guest" bar="foo"/>
+				<permission href="third" role="guest" foo="bar"/>
 			</permissions>',
 			'xml'
 		);
 		Assert::same(
 			['first', 'second', 'third'],
-			(new Authorization\XmlPermissions($xml))->resources()
+			(new Authorization\XmlPermissions($xml, 'guest'))->resources()
 		);
 	}
 
 	public function testReEnabledErrorsInAllCases() {
 		$validXml = Tester\FileMock::create(
 			'<permissions>
-				<permission href="first"/>
+				<permission href="first" role="guest"/>
 				<permission href="second" role="guest"/>
-				<permission href="third" role="master"/>
+				<permission href="third" role="guest"/>
 			</permissions>',
 			'xml'
 		);
 		$invalidXml = __FILE__;
 		Assert::noError(function() use($validXml) {
-			(new Authorization\XmlPermissions($validXml))->resources();
+			(new Authorization\XmlPermissions($validXml, 'guest'))->resources();
 		});
 		Assert::false(libxml_use_internal_errors(false));
 		Assert::exception(function() use($invalidXml) {
-			(new Authorization\XmlPermissions($invalidXml))->resources();
+			(new Authorization\XmlPermissions($invalidXml, 'guest'))->resources();
 		}, \Throwable::class);
 		Assert::false(libxml_use_internal_errors(false));
 	}
