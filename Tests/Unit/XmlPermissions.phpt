@@ -50,91 +50,56 @@ final class XmlPermissions extends Tester\TestCase {
 		(new Authorization\XmlPermissions($xml))->getIterator();
 	}
 
-	/**
-	 * @throws \InvalidArgumentException No available permissions
-	 */
 	public function testThrowingOnMissingAttributes() {
-		$xml = Tester\FileMock::create(
+		$exposedFault = Tester\FileMock::create(
 			'<permissions><permission/></permissions>',
 			'xml'
 		);
-		(new Authorization\XmlPermissions($xml))->getIterator();
-	}
-
-	public function testThrowingOnMissingResourceAttribute() {
-		$singleFault = Tester\FileMock::create(
+		$hiddenFault = Tester\FileMock::create(
 			'<permissions>
-				<permission role="guest"/>
+				<permission/>
+				<permission foo="bar"/>
 			</permissions>',
 			'xml'
 		);
-		$hiddenSingleFault = Tester\FileMock::create(
-			'<permissions>
-				<permission role="guest"/>
-				<permission resource="first" role="guest"/>
-			</permissions>',
-			'xml'
-		);
-		Assert::exception(function() use($singleFault) {
-			(new Authorization\XmlPermissions(
-				$singleFault
-			))->getIterator();
+		Assert::exception(function() use($exposedFault) {
+			(new Authorization\XmlPermissions($exposedFault))->getIterator();
 		}, \InvalidArgumentException::class, 'No available permissions');
-		Assert::exception(function() use($hiddenSingleFault) {
-			(new Authorization\XmlPermissions(
-				$hiddenSingleFault
-			))->getIterator();
-		}, \InvalidArgumentException::class, 'No available permissions');
-	}
-
-	public function testThrowingOnMissingRoleAttribute() {
-		$singleFault = Tester\FileMock::create(
-			'<permissions>
-				<permission resource="first"/>
-			</permissions>',
-			'xml'
-		);
-		$hiddenSingleFault = Tester\FileMock::create(
-			'<permissions>
-				<permission resource="first"/>
-				<permission resource="first" role="guest"/>
-			</permissions>',
-			'xml'
-		);
-		Assert::exception(function() use($singleFault) {
-			(new Authorization\XmlPermissions(
-				$singleFault
-			))->getIterator();
-		}, \InvalidArgumentException::class, 'No available permissions');
-		Assert::exception(function() use($hiddenSingleFault) {
-			(new Authorization\XmlPermissions(
-				$hiddenSingleFault
-			))->getIterator();
+		Assert::exception(function() use($hiddenFault) {
+			(new Authorization\XmlPermissions($hiddenFault))->getIterator();
 		}, \InvalidArgumentException::class, 'No available permissions');
 	}
 
 	public function testExtractedPermissions() {
 		$xml = Tester\FileMock::create(
 			'<permissions>
-			<permission resource="first" role="member"/>
-			<permission resource="second" role="admin"/>
-			<permission resource="third" role="guest"/>
-			<permission resource="0" role="guest"/>
+				<permission resource="first" role="member"/>
+				<permission resource="second" role="admin"/>
+				<permission resource="third" role="guest"/>
+				<permission resource="0" role="guest"/>
 			</permissions>',
 			'xml'
 		);
 		Assert::equal(
 			new \ArrayIterator([
-				['resource' => 'first', 'role' => 'member'],
-				['resource' => 'second', 'role' => 'admin'],
-				['resource' => 'third', 'role' => 'guest'],
-				['resource' => '0', 'role' => 'guest'],
+				new Authorization\ResurrectedPermission([
+					'resource' => 'first', 'role' => 'member'
+				]),
+				new Authorization\ResurrectedPermission([
+					'resource' => 'second', 'role' => 'admin'
+				]),
+				new Authorization\ResurrectedPermission([
+					'resource' => 'third', 'role' => 'guest'
+				]),
+				new Authorization\ResurrectedPermission([
+					'resource' => '0', 'role' => 'guest'
+				]),
 			]),
 			(new Authorization\XmlPermissions($xml))->getIterator()
 		);
 	}
 
-	public function testIgnoringExtraAttributes() {
+	public function testExtractingAllAttributes() {
 		$xml = Tester\FileMock::create(
 			'<permissions>
 				<permission resource="first" role="guest"/>
@@ -145,9 +110,15 @@ final class XmlPermissions extends Tester\TestCase {
 		);
 		Assert::equal(
 			new \ArrayIterator([
-				['resource' => 'first', 'role' => 'guest'],
-				['resource' => 'second', 'role' => 'guest'],
-				['resource' => 'third', 'role' => 'guest'],
+				new Authorization\ResurrectedPermission([
+					'resource' => 'first', 'role' => 'guest'
+				]),
+				new Authorization\ResurrectedPermission([
+					'resource' => 'second', 'role' => 'guest', 'bar' => 'foo'
+				]),
+				new Authorization\ResurrectedPermission([
+					'resource' => 'third', 'role' => 'guest', 'foo' => 'bar'
+				]),
 			]),
 			(new Authorization\XmlPermissions($xml))->getIterator()
 		);

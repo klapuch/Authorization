@@ -6,8 +6,6 @@ namespace Klapuch\Authorization;
  * Role intended to inspect HTTP based permissions
  */
 final class HttpRole implements Role {
-	private const RESOURCE = 'resource';
-	private const ROLE = 'role';
 	private $role;
 	private $permissions;
 
@@ -19,20 +17,22 @@ final class HttpRole implements Role {
 	public function allowed(string $resource): bool {
 		return (bool)array_uintersect(
 			array_pad($this->resources($this->permissions, $this->role), 1, $resource),
-			[self::ROLE => $this->role, self::RESOURCE => $resource],
+			[$resource],
 			'strcasecmp'
 		);
 	}
 
 	private function resources(Permissions $permissions, string $role): array {
-		return array_column(
+		return array_map(
+			function(Permission $permission): string {
+				return $permission->resource();
+			},
 			array_filter(
 				iterator_to_array($this->permissions),
-				function(array $permission) use($role): bool {
-					return $permission[self::ROLE] === $role;
+				function(Permission $permission) use($role): bool {
+					return $permission->role() === $role;
 				}
-			),
-			self::RESOURCE
+			)
 		);
 	}
 }

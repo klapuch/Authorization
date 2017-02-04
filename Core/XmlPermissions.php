@@ -7,7 +7,6 @@ namespace Klapuch\Authorization;
  */
 final class XmlPermissions implements Permissions {
 	private const QUERY = '/permissions/permission';
-	private const ATTRIBUTES = ['resource', 'role'];
 	private $file;
 
 	public function __construct(string $file) {
@@ -35,14 +34,12 @@ final class XmlPermissions implements Permissions {
 		if(!$this->usable($xml))
 			throw new \InvalidArgumentException('No available permissions');
 		return array_map(
-			function(\DOMElement $permission): array {
-				return array_combine(
-					self::ATTRIBUTES,
-					array_map(
-						function(string $attribute) use($permission): string {
-							return $permission->getAttribute($attribute);
-						},
-						self::ATTRIBUTES
+			function(\DOMElement $permission): Permission {
+				$attributes = iterator_to_array($permission->attributes);
+				return new ResurrectedPermission(
+					array_combine(
+						array_column($attributes, 'name'),
+						array_column($attributes, 'value')
 					)
 				);
 			},
@@ -51,32 +48,13 @@ final class XmlPermissions implements Permissions {
 	}
 
 	/**
-	 * Is the XML composed from usable parts?
+	 * Is the XML usable for the permissions?
 	 * @param \DOMDocument $xml
 	 * @return bool
 	 */
 	private function usable(\DOMDocument $xml): bool {
-		$expression = new class(self::QUERY, self::ATTRIBUTES) {
-			private $query;
-			private $attributes;
-
-			public function __construct(string $query, array $attributes) {
-				$this->query = $query;
-				$this->attributes = $attributes;
-			}
-
-			public function __toString(): string {
-				return sprintf(
-					'%s and %s > 0',
-					implode('=', array_map([$this, 'selection'], $this->attributes)),
-					$this->selection(current($this->attributes))
-				);
-			}
-
-			private function selection(string $attribute): string {
-				return sprintf('count(%s[@%s])', $this->query, $attribute);
-			}
-		};
-		return (new \DOMXPath($xml))->evaluate((string)$expression);
+		return (new \DOMXPath($xml))->evaluate(
+			sprintf('count(%1$s[not(@*)]) = 0 and count(%1$s) > 0', self::QUERY)
+		);
 	}
 }

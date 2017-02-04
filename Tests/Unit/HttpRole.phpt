@@ -22,7 +22,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testEmptyResourceWithoutMatchingPermission() {
 		$permissions = new Authorization\FakePermissions([
-			['role' => 'guest', 'resource' => 'parts'],
+			new Authorization\FakePermission('parts', 'guest')
 		]);
 		Assert::false(
 			(new Authorization\HttpRole(
@@ -33,7 +33,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingAllowedPermission() {
 		$permissions = new Authorization\FakePermissions([
-			['role' => 'guest', 'resource' => 'parts'],
+			new Authorization\FakePermission('parts', 'guest')
 		]);
 		Assert::true(
 			(new Authorization\HttpRole(
@@ -42,20 +42,9 @@ final class HttpRole extends Tester\TestCase {
 		);
 	}
 
-	public function testTypeStrictMatching() {
-		$permissions = new Authorization\FakePermissions([
-			['role' => 'guest', 'resource' => true],
-		]);
-		Assert::false(
-			(new Authorization\HttpRole(
-				'guest', $permissions
-			))->allowed('parts')
-		);
-	}
-
 	public function testCaseInsensitiveMatching() {
 		$permissions = new Authorization\FakePermissions([
-			['role' => 'guest', 'resource' => 'pArTs'],
+			new Authorization\FakePermission('pArTs', 'guest')
 		]);
 		$role = new Authorization\HttpRole('guest', $permissions);
 		Assert::true($role->allowed('parts'));
@@ -64,8 +53,8 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testTrailingSlashWithDifferentMeaning() {
 		$permissions = new Authorization\FakePermissions([
-			['role' => 'guest', 'resource' => 'parts/'],
-			['role' => 'guest', 'resource' => '/parts'],
+			new Authorization\FakePermission('/parts', 'guest'),
+			new Authorization\FakePermission('parts/', 'guest')
 		]);
 		$role = new Authorization\HttpRole('guest', $permissions);
 		Assert::false($role->allowed('parts'));
@@ -73,10 +62,10 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingInMultipleResources() {
 		$permissions = new Authorization\FakePermissions([
-			['role' => 'guest', 'resource' => 'parts'],
-			['role' => 'guest', 'resource' => 'parts/'],
-			['role' => 'guest', 'resource' => 'pages/all'],
-			['role' => 'guest', 'resource' => 'pages'],
+			new Authorization\FakePermission('parts', 'guest'),
+			new Authorization\FakePermission('parts/', 'guest'),
+			new Authorization\FakePermission('pages/all', 'guest'),
+			new Authorization\FakePermission('pages', 'guest'),
 		]);
 		$role = new Authorization\HttpRole('guest', $permissions);
 		Assert::true($role->allowed('pages/all'));
@@ -84,8 +73,8 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingForParticularRole() {
 		$permissions = new Authorization\FakePermissions([
-			['role' => 'guest', 'resource' => 'parts'],
-			['role' => 'admin', 'resource' => 'pages'],
+			new Authorization\FakePermission('parts', 'guest'),
+			new Authorization\FakePermission('pages', 'admin'),
 		]);
 		$role = new Authorization\HttpRole('admin', $permissions);
 		Assert::true($role->allowed('pages'));
