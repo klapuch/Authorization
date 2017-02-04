@@ -22,7 +22,7 @@ final class ResurrectedPermission extends Tester\TestCase {
 		}, \InvalidArgumentException::class, 'No resource available');
 	}
 
-	public function testFindingExactField() {
+	public function testFindingExactFields() {
 		$permission = new Authorization\ResurrectedPermission([
 			'role' => 'some role',
 			'resource' => 'some resource',

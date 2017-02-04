@@ -25,9 +25,7 @@ final class HttpRole extends Tester\TestCase {
 			new Authorization\FakePermission('parts', 'guest')
 		]);
 		Assert::false(
-			(new Authorization\HttpRole(
-				'guest', $permissions
-			))->allowed('')
+			(new Authorization\HttpRole('guest', $permissions))->allowed('')
 		);
 	}
 
@@ -36,9 +34,7 @@ final class HttpRole extends Tester\TestCase {
 			new Authorization\FakePermission('parts', 'guest')
 		]);
 		Assert::true(
-			(new Authorization\HttpRole(
-				'guest', $permissions
-			))->allowed('parts')
+			(new Authorization\HttpRole('guest', $permissions))->allowed('parts')
 		);
 	}
 

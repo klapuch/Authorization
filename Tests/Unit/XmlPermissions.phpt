@@ -99,7 +99,7 @@ final class XmlPermissions extends Tester\TestCase {
 		);
 	}
 
-	public function testExtractingAllAttributes() {
+	public function testExtractingAllPermissionAttributes() {
 		$xml = Tester\FileMock::create(
 			'<permissions>
 				<permission resource="first" role="guest"/>
