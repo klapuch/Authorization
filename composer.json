@@ -44,7 +44,7 @@
 		"phpcs": "phpcs --standard=ruleset.xml --extensions=php,phpt --encoding=utf-8 --tab-width=4 -sp Core",
 		"test": "tester -o console -s -p php-cgi -c Tests/php.ini Tests/",
 		"bfc": [
-			"@composer update",
+			"@composer dump-autoload",
 			"@lint",
 			"@phpcpd",
 			"@phpstan",

@@ -7,37 +7,46 @@ namespace Klapuch\Authorization;
  */
 final class XmlPermissions implements Permissions {
 	private const QUERY = '/permissions/permission';
-	private const RESOURCE = 'href';
-	private const ROLE = 'role';
+	private const ATTRIBUTES = ['resource', 'role'];
 	private $file;
-	private $role;
 
-	public function __construct(string $file, string $role) {
+	public function __construct(string $file) {
 		$this->file = $file;
-		$this->role = $role;
 	}
 
-	public function resources(): array {
+	public function getIterator(): \Traversable {
 		$previous = libxml_use_internal_errors(true);
 		try {
 			$xml = new \DOMDocument();
 			if($xml->load($this->file) === false)
 				throw new \RunTimeException('XML can not be loaded');
-			elseif(!$this->usable($xml))
-				throw new \InvalidArgumentException('No available permissions');
-			return array_map(
-				function(\DOMNode $node): string {
-					return $node->getAttribute(self::RESOURCE);
-				}, iterator_to_array($this->matches($xml, $this->role))
-			);
+			return new \ArrayIterator($this->matches($xml));
 		} finally {
 			libxml_use_internal_errors($previous);
 		}
 	}
 
-	private function matches(\DOMDocument $xml, string $role) {
-		return (new \DOMXPath($xml))->query(
-			sprintf('%s[@%s="%s"]', self::QUERY, self::ROLE, $role)
+	/**
+	 * All the extracted permissions
+	 * @param \DOMDocument $xml
+	 * @return array
+	 */
+	private function matches(\DOMDocument $xml): array {
+		if(!$this->usable($xml))
+			throw new \InvalidArgumentException('No available permissions');
+		return array_map(
+			function(\DOMElement $permission): array {
+				return array_combine(
+					self::ATTRIBUTES,
+					array_map(
+						function(string $attribute) use($permission): string {
+							return $permission->getAttribute($attribute);
+						},
+						self::ATTRIBUTES
+					)
+				);
+			},
+			iterator_to_array((new \DOMXPath($xml))->query(self::QUERY))
 		);
 	}
 
@@ -47,12 +56,27 @@ final class XmlPermissions implements Permissions {
 	 * @return bool
 	 */
 	private function usable(\DOMDocument $xml): bool {
-		return (new \DOMXPath($xml))->evaluate(
-			sprintf(
-				'%1$s > 0 and %2$s > 0 and %1$s = %2$s',
-				sprintf('count(%s[@%s])', self::QUERY, self::RESOURCE),
-				sprintf('count(%s[@%s])', self::QUERY, self::ROLE)
-			)
-		);
+		$expression = new class(self::QUERY, self::ATTRIBUTES) {
+			private $query;
+			private $attributes;
+
+			public function __construct(string $query, array $attributes) {
+				$this->query = $query;
+				$this->attributes = $attributes;
+			}
+
+			public function __toString(): string {
+				return sprintf(
+					'%s and %s > 0',
+					implode('=', array_map([$this, 'selection'], $this->attributes)),
+					$this->selection(current($this->attributes))
+				);
+			}
+
+			private function selection(string $attribute): string {
+				return sprintf('count(%s[@%s])', $this->query, $attribute);
+			}
+		};
+		return (new \DOMXPath($xml))->evaluate((string)$expression);
 	}
 }

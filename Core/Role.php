@@ -2,9 +2,9 @@
 declare(strict_types = 1);
 namespace Klapuch\Authorization;
 
-interface Permission {
+interface Role {
 	/**
-	 * Is the given resource allowed by the permission
+	 * Is the given resource allowed by the role?
 	 * @param string $resource
 	 * @return bool
 	 */

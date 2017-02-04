@@ -29,6 +29,7 @@ after_script:
 script:
   - ./vendor/bin/parallel-lint -e php,phpt Core Tests
   - ./vendor/bin/phpcpd Core
+  - ./vendor/bin/phpstan analyze -l 5 -c phpstan.neon Core Tests
   - ./vendor/bin/phpcs --standard=ruleset.xml --extensions=php,phpt --encoding=utf-8 --tab-width=4 -sp Core
   - ./vendor/bin/tester -c Tests/php.ini -p $PHP_BIN -o console -s $coverage ./Tests/
 
