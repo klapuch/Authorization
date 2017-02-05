@@ -81,7 +81,7 @@ final class XmlPermissions extends Tester\TestCase {
 			'xml'
 		);
 		Assert::equal(
-			new \ArrayIterator([
+			[
 				new Authorization\ResurrectedPermission([
 					'resource' => 'first', 'role' => 'member'
 				]),
@@ -94,8 +94,8 @@ final class XmlPermissions extends Tester\TestCase {
 				new Authorization\ResurrectedPermission([
 					'resource' => '0', 'role' => 'guest'
 				]),
-			]),
-			(new Authorization\XmlPermissions($xml))->getIterator()
+			],
+			iterator_to_array(new Authorization\XmlPermissions($xml))
 		);
 	}
 
@@ -109,7 +109,7 @@ final class XmlPermissions extends Tester\TestCase {
 			'xml'
 		);
 		Assert::equal(
-			new \ArrayIterator([
+			[
 				new Authorization\ResurrectedPermission([
 					'resource' => 'first', 'role' => 'guest'
 				]),
@@ -119,8 +119,8 @@ final class XmlPermissions extends Tester\TestCase {
 				new Authorization\ResurrectedPermission([
 					'resource' => 'third', 'role' => 'guest', 'foo' => 'bar'
 				]),
-			]),
-			(new Authorization\XmlPermissions($xml))->getIterator()
+			],
+			iterator_to_array(new Authorization\XmlPermissions($xml))
 		);
 	}
 
