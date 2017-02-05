@@ -2,8 +2,6 @@
 declare(strict_types = 1);
 namespace Klapuch\Authorization;
 
-use Klapuch\Iterator;
-
 /**
  * Permissions for particular role
  */
@@ -17,7 +15,7 @@ final class RolePermissions implements Permissions {
 	}
 
 	public function getIterator(): \Traversable {
-		return new Iterator\FilteredIterator(
+		return new \CallbackFilterIterator(
 			$this->origin->getIterator(),
 			function(Permission $permission): bool {
 				return $permission->role() === $this->role;
