@@ -19,7 +19,7 @@ final class HttpRole implements Role {
 		return (bool)array_filter(
 			array_pad($this->resources($this->permissions), 1, $resource),
 			function(string $pattern) use($resource): bool {
-				return (bool)preg_match(sprintf('~%s~i', $pattern), $resource);
+				return (bool)preg_match(sprintf('~%s$~i', $pattern), $resource);
 			}
 		);
 	}

@@ -98,7 +98,6 @@ final class HttpRole extends Tester\TestCase {
 		Assert::true($role->allowed('parts/foo'));
 	}
 
-	/* TODO - must work
 	public function testMatchingVariableParameterAsSingleValue() {
 		$permissions = new Authorization\FakePermissions([
 			new Authorization\FakePermission('parts/<var>'),
@@ -106,7 +105,7 @@ final class HttpRole extends Tester\TestCase {
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('parts/foo/'));
 		Assert::false($role->allowed('parts/foo/bar'));
-	}**/
+	}
 
 	public function testVariableParameterOutOfUnreservedCharacters() {
 		$permissions = new Authorization\FakePermissions([
