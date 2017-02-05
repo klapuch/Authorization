@@ -72,6 +72,76 @@ final class HttpRole extends Tester\TestCase {
 		Assert::true($role->allowed('pages'));
 		Assert::true($role->allowed('parts'));
 	}
+
+	public function testMatchingWithVariableParameter() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<var>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::false($role->allowed('parts'));
+		Assert::false($role->allowed('parts/'));
+		Assert::true($role->allowed('parts/123'));
+		Assert::true($role->allowed('parts/foo'));
+		Assert::true($role->allowed('parts/12foo34'));
+		Assert::true($role->allowed('parts/foo.bar'));
+		Assert::true($role->allowed('parts/foo~bar'));
+		Assert::true($role->allowed('parts/foo-bar'));
+		Assert::true($role->allowed('parts/foo_bar'));
+	}
+
+	public function testMatchingCaseInsensitiveVariableParameter() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<VAR>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::true($role->allowed('parts/123'));
+		Assert::true($role->allowed('parts/foo'));
+	}
+
+	/* TODO - must work
+	public function testMatchingVariableParameterAsSingleValue() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<var>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::false($role->allowed('parts/foo/'));
+		Assert::false($role->allowed('parts/foo/bar'));
+	}**/
+
+	public function testVariableParameterOutOfUnreservedCharacters() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<var>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::false($role->allowed('parts//'));
+		Assert::false($role->allowed('parts//foo'));
+	}
+
+	public function testVariableParameterInBetween() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<var>/view'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::true($role->allowed('parts/foo/view'));
+		Assert::true($role->allowed('parts/123/view'));
+	}
+
+	public function testMatchingWithMultipleVariableParameters() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<var>/view/<var>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::true($role->allowed('parts/foo/view/123'));
+		Assert::true($role->allowed('parts/123/view/foo'));
+	}
+
+	public function testNotMatchingPlaceholder() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<var>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::false($role->allowed('parts/<var>'));
+	}
 }
 
 
