@@ -65,8 +65,8 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingForAnyRole() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts', 'guest'),
-			new Authorization\FakePermission('pages', 'admin'),
+			new Authorization\FakePermission('parts'),
+			new Authorization\FakePermission('pages'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::true($role->allowed('pages'));
