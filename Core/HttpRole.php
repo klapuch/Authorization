@@ -7,7 +7,13 @@ namespace Klapuch\Authorization;
  */
 final class HttpRole implements Role {
 	private const UNRESERVED_CHARACTERS = [
-		'a-z', 'A-Z', '0-9', '_', '\.', '\~', '-',
+		'a-z',
+		'A-Z',
+		'0-9',
+		'_',
+		'\.',
+		'\~',
+		'-',
 	];
 	private $permissions;
 
