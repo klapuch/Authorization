@@ -141,6 +141,54 @@ final class HttpRole extends Tester\TestCase {
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('parts/<var>'));
 	}
+
+	public function testMatchingWithNumericParameter() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<num>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::false($role->allowed('parts'));
+		Assert::false($role->allowed('parts/'));
+		Assert::false($role->allowed('parts/foo'));
+		Assert::false($role->allowed('parts/12foo34'));
+		Assert::false($role->allowed('parts/foo.bar'));
+		Assert::true($role->allowed('parts/123'));
+		Assert::true($role->allowed('parts/0'));
+		Assert::true($role->allowed('parts/66666666666666666666'));
+	}
+
+	public function testCombibingVariableAndNumericParameter() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<num>/foo/<var>'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::true($role->allowed('parts/123/foo/bar'));
+		Assert::true($role->allowed('parts/0/foo/666'));
+		Assert::false($role->allowed('parts/bar/foo/666'));
+	}
+
+	public function testConflictingParametersStrongerWinner() {
+		$firstStronger = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<var>'),
+			new Authorization\FakePermission('parts/<num>'),
+		]);
+		$firstWeaker = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts/<num>'),
+			new Authorization\FakePermission('parts/<var>'),
+		]);
+		Assert::true(
+			(new Authorization\HttpRole($firstStronger))->allowed('parts/foo')
+		);
+		Assert::true(
+			(new Authorization\HttpRole($firstStronger))->allowed('parts/123')
+		);
+		Assert::true(
+			(new Authorization\HttpRole($firstWeaker))->allowed('parts/foo')
+		);
+		Assert::true(
+			(new Authorization\HttpRole($firstWeaker))->allowed('parts/123')
+		);
+	}
 }
 
 
