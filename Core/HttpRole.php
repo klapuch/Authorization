@@ -6,7 +6,7 @@ namespace Klapuch\Authorization;
  * Role intended to inspect HTTP based permissions
  */
 final class HttpRole implements Role {
-	private const VARIABLE_CHARACTERS = [
+	private const ANY_PARAMETER = [
 		'a-z',
 		'A-Z',
 		'0-9',
@@ -15,7 +15,7 @@ final class HttpRole implements Role {
 		'\~',
 		'-',
 	];
-	private const NUMERIC_CHARACTERS = ['0-9'];
+	private const NUMERIC_PARAMETER = ['0-9'];
 	private $permissions;
 
 	public function __construct(Permissions $permissions) {
@@ -35,10 +35,10 @@ final class HttpRole implements Role {
 		return array_map(
 			function(Permission $permission): string {
 				return str_ireplace(
-					['<var>', '<num>'],
+					['<any>', '<num>'],
 					[
-						sprintf('[%s]+', implode(self::VARIABLE_CHARACTERS)),
-						sprintf('[%s]+', implode(self::NUMERIC_CHARACTERS)),
+						sprintf('[%s]+', implode(self::ANY_PARAMETER)),
+						sprintf('[%s]+', implode(self::NUMERIC_PARAMETER)),
 					],
 					$permission->resource()
 				);
