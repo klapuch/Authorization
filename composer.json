@@ -1,6 +1,6 @@
 {
 	"name": "klapuch/authorization",
-	"description": " Http based authorization ",
+	"description": " HTTP based authorization ",
 	"type": "library",
 	"homepage": "https://www.github.com/klapuch/Authorization",
 	"authors": [
