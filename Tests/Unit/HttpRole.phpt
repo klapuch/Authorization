@@ -75,7 +75,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingWithAnyParameter() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<any>'),
+			new Authorization\FakePermission('parts/{any}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('parts'));
@@ -91,7 +91,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingCaseInsensitiveAnyParameter() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<ANY>'),
+			new Authorization\FakePermission('parts/{ANY}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::true($role->allowed('parts/123'));
@@ -100,7 +100,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingAnyParameterAsSingleValue() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<any>'),
+			new Authorization\FakePermission('parts/{any}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('parts/foo/'));
@@ -109,7 +109,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testAnyParameterOutOfUnreservedCharacters() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<any>'),
+			new Authorization\FakePermission('parts/{any}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('parts//'));
@@ -118,7 +118,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testAnyParameterInBetween() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<any>/view'),
+			new Authorization\FakePermission('parts/{any}/view'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::true($role->allowed('parts/foo/view'));
@@ -127,7 +127,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testMatchingWithMultipleAnyParameters() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<any>/view/<any>'),
+			new Authorization\FakePermission('parts/{any}/view/{any}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::true($role->allowed('parts/foo/view/123'));
@@ -136,15 +136,15 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testNotMatchingPlaceholder() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<any>'),
+			new Authorization\FakePermission('parts/{any}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
-		Assert::false($role->allowed('parts/<any>'));
+		Assert::false($role->allowed('parts/{any}'));
 	}
 
 	public function testMatchingWithNumericParameter() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<num>'),
+			new Authorization\FakePermission('parts/{num}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('parts'));
@@ -159,7 +159,7 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testCombibingAnyAndNumericParameter() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<num>/foo/<any>'),
+			new Authorization\FakePermission('parts/{num}/foo/{any}'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::true($role->allowed('parts/123/foo/bar'));
@@ -169,12 +169,12 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testConflictingParametersStrongerWinner() {
 		$firstStronger = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<any>'),
-			new Authorization\FakePermission('parts/<num>'),
+			new Authorization\FakePermission('parts/{any}'),
+			new Authorization\FakePermission('parts/{num}'),
 		]);
 		$firstWeaker = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts/<num>'),
-			new Authorization\FakePermission('parts/<any>'),
+			new Authorization\FakePermission('parts/{num}'),
+			new Authorization\FakePermission('parts/{any}'),
 		]);
 		Assert::true(
 			(new Authorization\HttpRole($firstStronger))->allowed('parts/foo')

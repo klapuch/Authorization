@@ -35,7 +35,7 @@ final class HttpRole implements Role {
 		return array_map(
 			function(Permission $permission): string {
 				return str_ireplace(
-					['<any>', '<num>'],
+					['{any}', '{num}'],
 					[
 						sprintf('[%s]+', implode(self::ANY_PARAMETER)),
 						sprintf('[%s]+', implode(self::NUMERIC_PARAMETER)),
