@@ -13,7 +13,8 @@ final class HttpRole implements Role {
 		'_',
 		'\.',
 		'\~',
-		'-',
+		'\-',
+		':',
 	];
 	private const NUMERIC_PARAMETER = ['0-9'];
 	private $permissions;

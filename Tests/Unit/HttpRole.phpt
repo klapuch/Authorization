@@ -87,6 +87,7 @@ final class HttpRole extends Tester\TestCase {
 		Assert::true($role->allowed('parts/foo~bar'));
 		Assert::true($role->allowed('parts/foo-bar'));
 		Assert::true($role->allowed('parts/foo_bar'));
+		Assert::true($role->allowed('parts/foo:bar'));
 	}
 
 	public function testMatchingCaseInsensitiveAnyParameter() {
