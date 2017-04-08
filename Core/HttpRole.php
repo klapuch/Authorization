@@ -24,14 +24,14 @@ final class HttpRole implements Role {
 
 	public function allowed(string $resource): bool {
 		return (bool)array_filter(
-			array_pad($this->resources($this->permissions), 1, $resource),
+			array_pad($this->resources(), 1, $resource),
 			function(string $pattern) use($resource): bool {
 				return (bool)preg_match(sprintf('~%s$~i', $pattern), $resource);
 			}
 		);
 	}
 
-	private function resources(Permissions $permissions): array {
+	private function resources(): array {
 		return array_map(
 			function(Permission $permission): string {
 				return str_ireplace(
