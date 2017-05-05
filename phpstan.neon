@@ -1,6 +1,4 @@
 parameters:
 	universalObjectCratesClasses:
-		- DateInterval
-		- DateTime
-		- DateTimeImmutable
+		- LibXMLError
 		- DOMNode

@@ -16,14 +16,14 @@ final class ResurrectedPermission implements Permission {
 
 	public function resource(): string {
 		$permissions = $this->normalize($this->permissions);
-		if(!$this->present(self::RESOURCE, $permissions))
+		if (!$this->present(self::RESOURCE, $permissions))
 			throw new \InvalidArgumentException('No resource available');
 		return $permissions[self::RESOURCE];
 	}
 
 	public function role(): string {
 		$permissions = $this->normalize($this->permissions);
-		if(!$this->present(self::ROLE, $permissions))
+		if (!$this->present(self::ROLE, $permissions))
 			throw new \InvalidArgumentException('No role available');
 		return $permissions[self::ROLE];
 	}

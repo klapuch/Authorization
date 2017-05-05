@@ -17,7 +17,7 @@ final class XmlPermissions implements Permissions {
 		$previous = libxml_use_internal_errors(true);
 		try {
 			$xml = new \DOMDocument();
-			if($xml->load($this->file) === false)
+			if ($xml->load($this->file) === false)
 				throw new \RunTimeException('XML can not be loaded');
 			return new \ArrayIterator($this->matches($xml));
 		} finally {
@@ -31,7 +31,7 @@ final class XmlPermissions implements Permissions {
 	 * @return array
 	 */
 	private function matches(\DOMDocument $xml): array {
-		if(!$this->usable($xml))
+		if (!$this->usable($xml))
 			throw new \InvalidArgumentException('No available permissions');
 		return array_map(
 			function(\DOMElement $permission): Permission {

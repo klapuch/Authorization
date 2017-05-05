@@ -6,9 +6,9 @@ declare(strict_types = 1);
  */
 namespace Klapuch\Authorization\Unit;
 
+use Klapuch\Authorization;
 use Tester;
 use Tester\Assert;
-use Klapuch\Authorization;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -22,21 +22,21 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testEmptyResourceWithoutMatchingPermission() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts')
+			new Authorization\FakePermission('parts'),
 		]);
 		Assert::false((new Authorization\HttpRole($permissions))->allowed(''));
 	}
 
 	public function testMatchingSingleAllowedPermission() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('parts')
+			new Authorization\FakePermission('parts'),
 		]);
 		Assert::true((new Authorization\HttpRole($permissions))->allowed('parts'));
 	}
 
 	public function testCaseInsensitiveMatching() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('pArTs')
+			new Authorization\FakePermission('pArTs'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::true($role->allowed('parts'));
@@ -46,7 +46,7 @@ final class HttpRole extends Tester\TestCase {
 	public function testTrailingSlashWithDifferentMeaning() {
 		$permissions = new Authorization\FakePermissions([
 			new Authorization\FakePermission('/parts'),
-			new Authorization\FakePermission('parts/')
+			new Authorization\FakePermission('parts/'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('parts'));

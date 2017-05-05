@@ -6,9 +6,9 @@ declare(strict_types = 1);
  */
 namespace Klapuch\Authorization\Unit;
 
+use Klapuch\Authorization;
 use Tester;
 use Tester\Assert;
-use Klapuch\Authorization;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -24,7 +24,7 @@ final class RolePermissions extends Tester\TestCase {
 		);
 		Assert::equal(
 			[
-				new Authorization\FakePermission('first', 'guest'),
+				0 => new Authorization\FakePermission('first', 'guest'),
 				2 => new Authorization\FakePermission('third', 'guest'),
 			],
 			iterator_to_array($permissions)

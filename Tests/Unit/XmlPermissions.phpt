@@ -6,9 +6,9 @@ declare(strict_types = 1);
  */
 namespace Klapuch\Authorization\Unit;
 
+use Klapuch\Authorization;
 use Tester;
 use Tester\Assert;
-use Klapuch\Authorization;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -62,10 +62,10 @@ final class XmlPermissions extends Tester\TestCase {
 			</permissions>',
 			'xml'
 		);
-		Assert::exception(function() use($exposedFault) {
+		Assert::exception(function() use ($exposedFault) {
 			(new Authorization\XmlPermissions($exposedFault))->getIterator();
 		}, \InvalidArgumentException::class, 'No available permissions');
-		Assert::exception(function() use($hiddenFault) {
+		Assert::exception(function() use ($hiddenFault) {
 			(new Authorization\XmlPermissions($hiddenFault))->getIterator();
 		}, \InvalidArgumentException::class, 'No available permissions');
 	}
@@ -83,16 +83,20 @@ final class XmlPermissions extends Tester\TestCase {
 		Assert::equal(
 			[
 				new Authorization\ResurrectedPermission([
-					'resource' => 'first', 'role' => 'member'
+					'resource' => 'first',
+					'role' => 'member',
 				]),
 				new Authorization\ResurrectedPermission([
-					'resource' => 'second', 'role' => 'admin'
+					'resource' => 'second',
+					'role' => 'admin',
 				]),
 				new Authorization\ResurrectedPermission([
-					'resource' => 'third', 'role' => 'guest'
+					'resource' => 'third',
+					'role' => 'guest',
 				]),
 				new Authorization\ResurrectedPermission([
-					'resource' => '0', 'role' => 'guest'
+					'resource' => '0',
+					'role' => 'guest',
 				]),
 			],
 			iterator_to_array(new Authorization\XmlPermissions($xml))
@@ -111,13 +115,18 @@ final class XmlPermissions extends Tester\TestCase {
 		Assert::equal(
 			[
 				new Authorization\ResurrectedPermission([
-					'resource' => 'first', 'role' => 'guest'
+					'resource' => 'first',
+					'role' => 'guest',
 				]),
 				new Authorization\ResurrectedPermission([
-					'resource' => 'second', 'role' => 'guest', 'bar' => 'foo'
+					'resource' => 'second',
+					'role' => 'guest',
+					'bar' => 'foo',
 				]),
 				new Authorization\ResurrectedPermission([
-					'resource' => 'third', 'role' => 'guest', 'foo' => 'bar'
+					'resource' => 'third',
+					'role' => 'guest',
+					'foo' => 'bar',
 				]),
 			],
 			iterator_to_array(new Authorization\XmlPermissions($xml))
@@ -134,11 +143,11 @@ final class XmlPermissions extends Tester\TestCase {
 			'xml'
 		);
 		$invalidXml = __FILE__;
-		Assert::noError(function() use($validXml) {
+		Assert::noError(function() use ($validXml) {
 			(new Authorization\XmlPermissions($validXml))->getIterator();
 		});
 		Assert::false(libxml_use_internal_errors(false));
-		Assert::exception(function() use($invalidXml) {
+		Assert::exception(function() use ($invalidXml) {
 			(new Authorization\XmlPermissions($invalidXml))->getIterator();
 		}, \Throwable::class);
 		Assert::false(libxml_use_internal_errors(false));
