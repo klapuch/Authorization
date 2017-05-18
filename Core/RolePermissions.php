@@ -14,9 +14,9 @@ final class RolePermissions implements Permissions {
 		$this->origin = $origin;
 	}
 
-	public function getIterator(): \Traversable {
+	public function all(): \Traversable {
 		return new \CallbackFilterIterator(
-			$this->origin->getIterator(),
+			$this->origin->all(),
 			function(Permission $permission): bool {
 				return $permission->role() === $this->role;
 			}

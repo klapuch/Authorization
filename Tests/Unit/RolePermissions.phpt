@@ -27,7 +27,7 @@ final class RolePermissions extends Tester\TestCase {
 				0 => new Authorization\FakePermission('first', 'guest'),
 				2 => new Authorization\FakePermission('third', 'guest'),
 			],
-			iterator_to_array($permissions)
+			iterator_to_array($permissions->all())
 		);
 	}
 
@@ -36,7 +36,7 @@ final class RolePermissions extends Tester\TestCase {
 			'guest',
 			new Authorization\FakePermissions([])
 		);
-		Assert::equal([], iterator_to_array($permissions));
+		Assert::equal([], iterator_to_array($permissions->all()));
 	}
 
 	public function testCaseSensitiveMatching() {
@@ -49,7 +49,7 @@ final class RolePermissions extends Tester\TestCase {
 		);
 		Assert::equal(
 			[new Authorization\FakePermission('first', 'guest')],
-			iterator_to_array($permissions)
+			iterator_to_array($permissions->all())
 		);
 	}
 }

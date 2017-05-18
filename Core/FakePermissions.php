@@ -9,7 +9,7 @@ final class FakePermissions implements Permissions {
 		$this->permissions = $permissions;
 	}
 
-	public function getIterator(): \Traversable {
+	public function all(): \Traversable {
 		return new \ArrayIterator($this->permissions);
 	}
 }

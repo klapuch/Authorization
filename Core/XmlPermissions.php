@@ -13,7 +13,7 @@ final class XmlPermissions implements Permissions {
 		$this->file = $file;
 	}
 
-	public function getIterator(): \Traversable {
+	public function all(): \Traversable {
 		$previous = libxml_use_internal_errors(true);
 		try {
 			$xml = new \DOMDocument();
