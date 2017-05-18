@@ -18,14 +18,14 @@ final class XmlPermissions extends Tester\TestCase {
 	 */
 	public function testThrowingOnNoPermissions() {
 		$xml = Tester\FileMock::create('', 'xml');
-		(new Authorization\XmlPermissions($xml))->getIterator();
+		(new Authorization\XmlPermissions($xml))->all();
 	}
 
 	/**
 	 * @throws \RuntimeException XML can not be loaded
 	 */
 	public function testThrowingOnUnknownFile() {
-		(new Authorization\XmlPermissions(__FILE__))->getIterator();
+		(new Authorization\XmlPermissions(__FILE__))->all();
 	}
 
 	/**
@@ -36,7 +36,7 @@ final class XmlPermissions extends Tester\TestCase {
 			'<foo><permission/></foo>',
 			'xml'
 		);
-		(new Authorization\XmlPermissions($xml))->getIterator();
+		(new Authorization\XmlPermissions($xml))->all();
 	}
 
 	/**
@@ -47,7 +47,7 @@ final class XmlPermissions extends Tester\TestCase {
 			'<permissions><foo/></permissions>',
 			'xml'
 		);
-		(new Authorization\XmlPermissions($xml))->getIterator();
+		(new Authorization\XmlPermissions($xml))->all();
 	}
 
 	public function testThrowingOnMissingAttributes() {
@@ -63,10 +63,10 @@ final class XmlPermissions extends Tester\TestCase {
 			'xml'
 		);
 		Assert::exception(function() use ($exposedFault) {
-			(new Authorization\XmlPermissions($exposedFault))->getIterator();
+			(new Authorization\XmlPermissions($exposedFault))->all();
 		}, \InvalidArgumentException::class, 'No available permissions');
 		Assert::exception(function() use ($hiddenFault) {
-			(new Authorization\XmlPermissions($hiddenFault))->getIterator();
+			(new Authorization\XmlPermissions($hiddenFault))->all();
 		}, \InvalidArgumentException::class, 'No available permissions');
 	}
 
@@ -99,7 +99,7 @@ final class XmlPermissions extends Tester\TestCase {
 					'role' => 'guest',
 				]),
 			],
-			iterator_to_array(new Authorization\XmlPermissions($xml))
+			iterator_to_array((new Authorization\XmlPermissions($xml))->all())
 		);
 	}
 
@@ -129,7 +129,7 @@ final class XmlPermissions extends Tester\TestCase {
 					'foo' => 'bar',
 				]),
 			],
-			iterator_to_array(new Authorization\XmlPermissions($xml))
+			iterator_to_array((new Authorization\XmlPermissions($xml))->all())
 		);
 	}
 
@@ -144,11 +144,11 @@ final class XmlPermissions extends Tester\TestCase {
 		);
 		$invalidXml = __FILE__;
 		Assert::noError(function() use ($validXml) {
-			(new Authorization\XmlPermissions($validXml))->getIterator();
+			(new Authorization\XmlPermissions($validXml))->all();
 		});
 		Assert::false(libxml_use_internal_errors(false));
 		Assert::exception(function() use ($invalidXml) {
-			(new Authorization\XmlPermissions($invalidXml))->getIterator();
+			(new Authorization\XmlPermissions($invalidXml))->all();
 		}, \Throwable::class);
 		Assert::false(libxml_use_internal_errors(false));
 	}

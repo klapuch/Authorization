@@ -44,7 +44,7 @@ final class HttpRole implements Role {
 					$permission->resource()
 				);
 			},
-			iterator_to_array($this->permissions)
+			iterator_to_array($this->permissions->all())
 		);
 	}
 }
