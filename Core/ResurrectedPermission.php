@@ -8,24 +8,24 @@ namespace Klapuch\Authorization;
 final class ResurrectedPermission implements Permission {
 	private const RESOURCE = 'resource',
 		ROLE = 'role';
-	private $permissions;
+	private $permission;
 
-	public function __construct(array $permissions) {
-		$this->permissions = $permissions;
+	public function __construct(array $permission) {
+		$this->permission = $permission;
 	}
 
 	public function resource(): string {
-		$permissions = $this->normalize($this->permissions);
-		if (!$this->present(self::RESOURCE, $permissions))
+		$permission = $this->normalize($this->permission);
+		if (!$this->present(self::RESOURCE, $permission))
 			throw new \InvalidArgumentException('No resource available');
-		return $permissions[self::RESOURCE];
+		return $permission[self::RESOURCE];
 	}
 
 	public function role(): string {
-		$permissions = $this->normalize($this->permissions);
-		if (!$this->present(self::ROLE, $permissions))
+		$permission = $this->normalize($this->permission);
+		if (!$this->present(self::ROLE, $permission))
 			throw new \InvalidArgumentException('No role available');
-		return $permissions[self::ROLE];
+		return $permission[self::ROLE];
 	}
 
 	/**
