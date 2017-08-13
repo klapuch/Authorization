@@ -177,26 +177,16 @@ final class HttpRole extends Tester\TestCase {
 			new Authorization\FakePermission('parts/{num}'),
 			new Authorization\FakePermission('parts/{any}'),
 		]);
-		Assert::true(
-			(new Authorization\HttpRole($firstStronger))->allowed('parts/foo')
-		);
-		Assert::true(
-			(new Authorization\HttpRole($firstStronger))->allowed('parts/123')
-		);
-		Assert::true(
-			(new Authorization\HttpRole($firstWeaker))->allowed('parts/foo')
-		);
-		Assert::true(
-			(new Authorization\HttpRole($firstWeaker))->allowed('parts/123')
-		);
+		Assert::true((new Authorization\HttpRole($firstStronger))->allowed('parts/foo'));
+		Assert::true((new Authorization\HttpRole($firstStronger))->allowed('parts/123'));
+		Assert::true((new Authorization\HttpRole($firstWeaker))->allowed('parts/foo'));
+		Assert::true((new Authorization\HttpRole($firstWeaker))->allowed('parts/123'));
 	}
 
 	public function testIgnoringContainingPart() {
-		$permissions = new Authorization\FakePermissions(
-			[
-				new Authorization\FakePermission('parts'),
-			]
-		);
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts'),
+		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('v1/parts'));
 	}
