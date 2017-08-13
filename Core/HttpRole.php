@@ -27,7 +27,7 @@ final class HttpRole implements Role {
 		return (bool) array_filter(
 			array_pad($this->resources(), 1, $resource),
 			function(string $pattern) use ($resource): bool {
-				return (bool) preg_match(sprintf('~^%s$~i', $pattern), $resource);
+				return (bool) preg_match(sprintf('~^/?%s$~i', $pattern), $resource);
 			}
 		);
 	}
@@ -35,13 +35,16 @@ final class HttpRole implements Role {
 	private function resources(): array {
 		return array_map(
 			function(Permission $permission): string {
-				return str_ireplace(
-					['{any}', '{num}'],
-					[
-						sprintf('[%s]+', implode(self::ANY_PARAMETER)),
-						sprintf('[%s]+', implode(self::NUMERIC_PARAMETER)),
-					],
-					$permission->resource()
+				return ltrim(
+					str_ireplace(
+						['{any}', '{num}'],
+						[
+							sprintf('[%s]+', implode(self::ANY_PARAMETER)),
+							sprintf('[%s]+', implode(self::NUMERIC_PARAMETER)),
+						],
+						$permission->resource()
+					),
+					'/'
 				);
 			},
 			iterator_to_array($this->permissions->all())

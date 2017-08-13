@@ -45,7 +45,6 @@ final class HttpRole extends Tester\TestCase {
 
 	public function testTrailingSlashWithDifferentMeaning() {
 		$permissions = new Authorization\FakePermissions([
-			new Authorization\FakePermission('/parts'),
 			new Authorization\FakePermission('parts/'),
 		]);
 		$role = new Authorization\HttpRole($permissions);
@@ -189,6 +188,22 @@ final class HttpRole extends Tester\TestCase {
 		]);
 		$role = new Authorization\HttpRole($permissions);
 		Assert::false($role->allowed('v1/parts'));
+	}
+
+	public function testSameMeaningWithBeginningSlashInResource() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('parts'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::true($role->allowed('/parts'));
+	}
+
+	public function testSameMeaningWithBeginningSlashInPermissions() {
+		$permissions = new Authorization\FakePermissions([
+			new Authorization\FakePermission('/parts'),
+		]);
+		$role = new Authorization\HttpRole($permissions);
+		Assert::true($role->allowed('parts'));
 	}
 }
 
